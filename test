@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# directory `lower` will be overlain by `upper` with the result presented on `merged`
+mkdir -p ofs/lower
+mkdir -p ofs/upper
+mkdir -p ofs/merged
+
+# just a scratch place
+mkdir -p work
+
+# setup `foo` in both, `bar` in lower `baz` in upper
+echo "lower" > ofs/lower/foo 
+echo "upper" > ofs/upper/foo 
+echo "lower" > ofs/lower/bar 
+echo "upper" > ofs/upper/baz 
+
+echo "BEFORE MOUNTING OVERLAY:"
+# files in `ofs`
+ls -R ofs
+echo
+
+# contents of `foo` in lower, upper, and merged
+echo -n "lower/foo: "
+cat ofs/lower/foo
+echo -n "upper/foo: "
+cat ofs/upper/foo
+echo -n "merged/foo: "
+cat ofs/merged/foo
+echo
+
+# create the overlay
+sudo mount -t overlay /mnt -o lowerdir=./ofs/lower,upperdir=./ofs/upper,workdir=./work ./ofs/merged
+
+echo "AFTER MOUNTING OVERLAY:"
+# files in `ofs`
+ls -R ofs
+echo
+
+# contents of `foo` in lower, upper, and merged
+echo -n "lower/foo: "
+cat ofs/lower/foo
+echo -n "upper/foo: "
+cat ofs/upper/foo
+echo -n "merged/foo: "
+cat ofs/merged/foo
+echo
+
+# modify merged/foo
+echo "merged" >> ofs/merged/foo
+
+# contents of `foo` in lower, upper, and merged
+echo -n "lower/foo: "
+cat ofs/lower/foo
+echo -n "upper/foo: "
+cat ofs/upper/foo
+echo -n "merged/foo: "
+cat ofs/merged/foo
